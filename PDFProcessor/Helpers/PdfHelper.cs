@@ -27,10 +27,17 @@ namespace PDFProcessor.Helpers
 
         public static void RemoveBookmarks(string inputFilePath, string outputFilePath)
         {
-            using (var inputDocument = PdfReader.Open(inputFilePath, PdfDocumentOpenMode.Modify))
+            using (var outputDocument = new PdfDocument())
             {
-                inputDocument.Outlines.Clear();
-                inputDocument.Save(outputFilePath);
+                using (var inputDocument = PdfReader.Open(inputFilePath, PdfDocumentOpenMode.Import))
+                {
+                    foreach (var page in inputDocument.Pages)
+                    {
+                        outputDocument.AddPage(page);
+                    }
+                    outputDocument.Outlines.Clear();
+                }
+                outputDocument.Save(outputFilePath);
             }
         }
     }
