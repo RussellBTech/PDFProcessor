@@ -49,6 +49,7 @@ namespace PDFProcessor
             var pdfProcessor = new PdfProcessor();
             var nonPdfFiles = new List<string>();
             var overwrittenPdfFiles = new List<string>();
+            var errorFiles = new List<string>();
 
             foreach (var dir in Directory.GetDirectories(folderPath))
             {
@@ -67,6 +68,7 @@ namespace PDFProcessor
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Failed to process folder {dirName}: {ex.Message}");
+                        errorFiles.Add(dirName);
                     }
                 }
                 else
@@ -92,6 +94,7 @@ namespace PDFProcessor
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Failed to process zip file {zipFileName}: {ex.Message}");
+                    errorFiles.Add(zipFileName);
                 }
             }
 
@@ -117,6 +120,7 @@ namespace PDFProcessor
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Failed to process PDF {fileName}: {ex.Message}");
+                        errorFiles.Add(fileName);
                     }
                 }
                 else
@@ -129,8 +133,9 @@ namespace PDFProcessor
                 }
             }
 
-            LogNonPdfFiles(nonPdfFiles, outputFolder);
-            LogOverwrittenPdfFiles(overwrittenPdfFiles, outputFolder);
+            WriteToLog(nonPdfFiles, outputFolder, "nonPdfFiles.txt");
+            WriteToLog(overwrittenPdfFiles, outputFolder, "overwrittenPdfFiles.txt");
+            WriteToLog(errorFiles, outputFolder, "unprocessedFiles");
         }
 
         private void ProcessDirectory(string directoryPath, PdfProcessor pdfProcessor, string outputFilePath, List<string> nonPdfFiles, List<string> overwrittenPdfFiles)
@@ -168,16 +173,10 @@ namespace PDFProcessor
             }
         }
 
-        private void LogNonPdfFiles(List<string> nonPdfFiles, string outputFolder)
+        private void WriteToLog(List<string> nonPdfFiles, string outputFolder, string fileName)
         {
-            var nonPdfFilePath = Path.Combine(outputFolder, "NonPdfFiles.txt");
+            var nonPdfFilePath = Path.Combine(outputFolder, fileName);
             File.WriteAllLines(nonPdfFilePath, nonPdfFiles);
-        }
-
-        private void LogOverwrittenPdfFiles(List<string> overwrittenPdfFiles, string outputFolder)
-        {
-            var overwrittenPdfFilePath = Path.Combine(outputFolder, "OverwrittenPdfFiles.txt");
-            File.WriteAllLines(overwrittenPdfFilePath, overwrittenPdfFiles);
         }
     }
 }
